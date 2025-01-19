@@ -1,0 +1,259 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <unordered_map>
+#include <algorithm>
+using namespace std;
+
+    class AparatFrigorific{
+    public:
+        int capacitate;
+        double pret;
+        AparatFrigorific();
+        AparatFrigorific(double,int);
+        virtual void afisare();
+        int getCapacitate(){
+            return capacitate;
+        }
+
+        double getPret();
+    };
+    double AparatFrigorific:: getPret(){
+        return pret;
+    }
+    AparatFrigorific::AparatFrigorific(){}
+    AparatFrigorific::AparatFrigorific(double pret,int capacitate){
+        this->pret=pret;
+        this->capacitate=capacitate;
+    }
+    void AparatFrigorific::afisare(){
+        cout<<"Aparatul Frigorific are pretul de "<<pret<<" cu capacitatea de "<<capacitate;
+    }
+
+    class Frigider:public AparatFrigorific{
+    private:
+        string culoare;
+    public:
+        Frigider();
+        Frigider(double,int,string);
+        void afisare();
+    };
+    Frigider::Frigider(){}
+    Frigider::Frigider(double pret,int capacitate,string culoare):AparatFrigorific(pret,capacitate){
+        this->culoare=culoare;
+    }
+    void Frigider::afisare(){
+        AparatFrigorific::afisare();
+        cout<<" este de culoare "<<culoare;
+    }
+
+    class Congelator:public AparatFrigorific{
+    private:
+        int nrSertare;
+    public:
+        Congelator();
+        Congelator(double,int,int);
+        void afisare();
+    };
+    Congelator::Congelator(){}
+    Congelator::Congelator(double pret, int capacitate, int nrSertare):AparatFrigorific(pret,capacitate){
+        this->nrSertare=nrSertare;
+    }
+    void Congelator::afisare(){
+        AparatFrigorific::afisare();
+        cout<<" are "<<nrSertare<<" sertare";
+    }
+
+    class FrigiderSbS:public Frigider{
+    private:
+        bool dozator;
+    public:
+        FrigiderSbS();
+        FrigiderSbS(double,int,string,bool);
+        void afisare();
+    };
+
+    FrigiderSbS::FrigiderSbS(){}
+    FrigiderSbS::FrigiderSbS(double pret,int capacitate,string culoare, bool dozator):Frigider(pret,capacitate,culoare){
+        this->dozator=dozator;
+    }
+    void FrigiderSbS::afisare(){
+        Frigider::afisare();
+        if(dozator==1)
+            cout<<" are dozator";
+        else cout<<" nu are dozator";
+    }
+
+    class LadaFrigorifica:public Congelator{
+    private:
+        int greutate;
+    public:
+        LadaFrigorifica();
+        LadaFrigorifica(double,int,int,int);
+        void afisare();
+    };
+    LadaFrigorifica::LadaFrigorifica(){}
+    LadaFrigorifica::LadaFrigorifica(double pret,int capacitate,int nrSertare, int greutate):Congelator(pret,capacitate,nrSertare){
+        this->greutate=greutate;
+    }
+    void LadaFrigorifica::afisare(){
+        Congelator::afisare();
+        cout<<" are greutatea de "<<greutate;
+    }
+
+    void afisareInformatii(const vector <AparatFrigorific*> aparat){
+        for(AparatFrigorific*a:aparat){
+            a->afisare();
+            cout<<endl;
+        }
+    }
+    int numarLaziFrigidere(const vector <AparatFrigorific*> aparat){
+        int k=0;
+        for(AparatFrigorific*i:aparat){
+            Frigider*f=dynamic_cast<Frigider*>(i);
+            if(f!=nullptr)
+                k++;
+            LadaFrigorifica*l=dynamic_cast<LadaFrigorifica*>(i);
+            if(l!=nullptr)
+                k++;
+        }
+        return k;
+    }
+    double pret_mediu(const vector<AparatFrigorific*> aparat){
+        int total_aparate = 0;
+        int count_aparate = 0;
+        for(const auto& aparate : aparat)
+            if(dynamic_cast<const AparatFrigorific*>(aparate)){
+                total_aparate += aparate->pret;
+                count_aparate++;
+            }
+        return total_aparate / count_aparate;
+    }
+void capacitate_medie(const vector <AparatFrigorific*> aparat){
+    int capacitateAparate=0;
+    int nrAparate=0;
+    int capacitateFrigidere=0;
+    int nrFrigidere=0;
+    int capacitateCongelatoare=0;
+    int nrCongelatoare=0;
+    int capacitateFrigidereSbS=0;
+    int nrFrigidereSbS=0;
+    int capacitateLazi=0;
+    int nrLazi=0;
+
+    for(AparatFrigorific*a:aparat){
+        if(typeid(*a) == typeid(AparatFrigorific)){
+            nrAparate++;
+            capacitateAparate+=a->getCapacitate();
+        }
+
+        if(typeid(*a) == typeid(Frigider)){
+            nrFrigidere++;
+            capacitateFrigidere+=a->getCapacitate();
+        }
+
+        if(typeid(*a) == typeid(Congelator)){
+            nrCongelatoare++;
+            capacitateCongelatoare+=a->getCapacitate();
+        }
+
+        if(typeid(*a) == typeid(FrigiderSbS)){
+            nrFrigidereSbS++;
+            capacitateFrigidereSbS+=a->getCapacitate();
+        }
+
+        if(typeid(*a) == typeid(LadaFrigorifica)){
+            nrLazi++;
+            capacitateLazi+=a->getCapacitate();
+        }
+
+
+    }
+    if(nrAparate>0)
+        cout<<"Capacitatea medie a Aparatelor Frigorifice este"<<capacitateAparate/nrAparate<<endl;
+    if(nrFrigidere>0)
+        cout<<"Capacitatea medie a Frigiderelor este"<<capacitateFrigidere/nrFrigidere<<endl;
+    if(nrCongelatoare>0)
+        cout<<"Capacitatea medie a Congelatoarelor este"<<capacitateCongelatoare/nrCongelatoare<<endl;
+    if(nrFrigidereSbS>0)
+        cout<<"Capacitatea medie a Frigiderelor SbS este"<<capacitateFrigidereSbS/nrFrigidereSbS<<endl;
+    if(nrLazi>0)
+        cout<<"Capacitatea medie a Lazilor Frigorifice este"<<capacitateLazi/nrLazi<<endl;
+}
+void pret_interval(const vector<AparatFrigorific*> aparat,int n,int m){
+        int k=0;
+    for(const auto& aparate : aparat) {
+        if(aparat.getPret()>=min && aparat.getPret()<=max)
+            k++;
+    }
+    cout<< k <<" aparate se incadreaza in intervalul ["<<n<<","<<m<<"]"<<endl;
+    }
+    int main()
+    {
+        vector <AparatFrigorific*> aparat;
+        int n;
+        cin>>n;
+        cin.ignore();
+        for(int i=0;i<n;i++){
+            string tip;
+            cin>>tip;
+            if(tip=="AparatFrigorific"){
+                double pret;
+                cin>>pret;
+                int capacitate;
+                cin>>capacitate;
+                aparat.push_back(new AparatFrigorific(pret,capacitate));
+            }
+            if(tip=="Frigider"){
+                double pret;
+                cin>>pret;
+                int capacitate;
+                cin>>capacitate;
+                cin.ignore();
+                string culoare;
+                getline(cin,culoare);
+                aparat.push_back(new Frigider(pret,capacitate,culoare));
+            }
+            if(tip=="Congelator"){
+                double pret;
+                cin>>pret;
+                int capacitate;
+                cin>>capacitate;
+                int nrSertare;
+                cin>>nrSertare;
+                aparat.push_back(new Congelator(pret,capacitate,nrSertare));
+            }
+            if(tip=="FrigiderSbS"){
+                double pret;
+                cin>>pret;
+                int capacitate;
+                cin>>capacitate;
+                cin.ignore();
+                string culoare;
+                getline(cin,culoare);
+                bool dozator;
+                cin>>dozator;
+                aparat.push_back(new FrigiderSbS(pret,capacitate,culoare,dozator));
+
+            }
+            if(tip=="LadaFrigorifica"){
+                double pret;
+                cin>>pret;
+                int capacitate;
+                cin>>capacitate;
+                int nrSertare;
+                cin>>nrSertare;
+                int greutate;
+                cin>>greutate;
+                aparat.push_back(new LadaFrigorifica(pret,capacitate,nrSertare,greutate));
+            }
+        }
+        afisareInformatii(aparat);
+        cout<<"Numarul de lazi si frigidere este "<< numarLaziFrigidere(aparat)<<endl;
+        cout<<"Pretul mediu al aparatelor este "<<pret_mediu(aparat)<<" lei"<<endl;
+        capacitate_medie(aparat);
+        int min,max;
+        cin>>min>>max;
+        pret_interval(aparat,min,max);
+        return 0;
+    }
